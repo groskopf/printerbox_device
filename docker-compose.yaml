@@ -1,0 +1,76 @@
+version: "3"
+services:
+
+  cupsd:
+    image: printerbox_cupsd:v1
+#    build:
+#      context: ../printerbox_cupsd
+#      dockerfile: Dockerfile
+    privileged: true
+    volumes:
+      - /dev:/dev 
+      - /var/run/dbus:/var/run/dbus
+    tmpfs:
+      - /tmp
+      - /run
+      - /var/log
+      - /var/spool
+      - /var/cache
+    entrypoint: /scripts/start_cupsd.sh
+    networks:
+      - printerbox_network
+#    restart_policy: always
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  client:
+    image: printerbox_client:v2
+    build:
+      context: ../printerbox_client
+      dockerfile: Dockerfile
+    privileged: true
+    volumes:
+      - /dev:/dev 
+      - ./config:/config 
+      - labels:/name_tags
+    entrypoint: python
+    networks:
+      - printerbox_network
+    command: /app/src/main.py
+#    restart_policy: always
+    environment:
+      - PYTHONUNBUFFERED=1
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+  sortkaffe:
+    image: printerbox_sortkaffe:v2
+    build:
+      context: ../printerbox_sortkaffe
+      dockerfile: Dockerfile
+    privileged: true
+    volumes:
+      - /dev:/dev 
+      - ./config:/config 
+      - labels:/labels
+    entrypoint: python
+    networks:
+      - printerbox_network
+    command: /app/src/printerbox.py
+#    restart_policy: always
+    environment:
+      - PYTHONUNBUFFERED=1
+    logging:
+      options:
+        max-size: "10m"
+        max-file: "3"
+
+networks:
+  printerbox_network:
+
+volumes:
+  labels:
