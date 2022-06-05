@@ -1,6 +1,9 @@
 {
     "config":  {
-        "boxid": "XDESP95271",
-        "number": "p" 
+        "box_id": "XDESP95271",
+        "number": "p", 
+        "printing_disabled": false,
+        "access_token": "",
+        "printer_server" : "printerbox_device_cupsd_1" 
     }
 }

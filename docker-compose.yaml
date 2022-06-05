@@ -2,10 +2,10 @@ version: "3"
 services:
 
   cupsd:
-    image: printerbox_cupsd:v1
-#    build:
-#      context: ../printerbox_cupsd
-#      dockerfile: Dockerfile
+    image: printerbox_cupsd:v2
+    build:
+      context: ../printerbox_cupsd
+      dockerfile: Dockerfile
     privileged: true
     volumes:
       - /dev:/dev 
@@ -33,12 +33,13 @@ services:
     privileged: true
     volumes:
       - /dev:/dev 
-      - ./config:/config 
-      - labels:/name_tags
+      - ./config:/app/config 
+      - printer_labels:/labels
     entrypoint: python
+    command: /app/src/main.py
+    working_dir: /app
     networks:
       - printerbox_network
-    command: /app/src/main.py
 #    restart_policy: always
     environment:
       - PYTHONUNBUFFERED=1
@@ -56,11 +57,11 @@ services:
     volumes:
       - /dev:/dev 
       - ./config:/config 
-      - labels:/labels
+      - printer_labels:/labels
     entrypoint: python
+    command: /app/src/printerbox.py
     networks:
       - printerbox_network
-    command: /app/src/printerbox.py
 #    restart_policy: always
     environment:
       - PYTHONUNBUFFERED=1
@@ -73,4 +74,6 @@ networks:
   printerbox_network:
 
 volumes:
-  labels:
+  printer_labels:
+    external: true
+
