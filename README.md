@@ -1,2 +1,2 @@
 # printerbox_device
-Compose og the dokcers running in the printerbox device
+Compose the dockers running in the printerbox device
