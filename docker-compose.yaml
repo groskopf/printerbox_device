@@ -2,7 +2,7 @@ version: "3"
 services:
 
   cupsd:
-    image: printerbox_cupsd:v2
+    image: groskopf/printerbox_cupsd:v2
     build:
       context: ../printerbox_cupsd
       dockerfile: Dockerfile
@@ -19,14 +19,14 @@ services:
     entrypoint: /scripts/start_cupsd.sh
     networks:
       - printerbox_network
-#    restart_policy: always
+    restart: unless-stopped
     logging:
       options:
         max-size: "10m"
         max-file: "3"
 
   client:
-    image: printerbox_client:v2
+    image: groskopf/printerbox_client:v2
     build:
       context: ../printerbox_client
       dockerfile: Dockerfile
@@ -40,7 +40,7 @@ services:
     working_dir: /app
     networks:
       - printerbox_network
-#    restart_policy: always
+    restart: unless-stopped
     environment:
       - PYTHONUNBUFFERED=1
     logging:
@@ -49,7 +49,7 @@ services:
         max-file: "3"
 
   sortkaffe:
-    image: printerbox_sortkaffe:v2
+    image: groskopf/printerbox_sortkaffe:v2
     build:
       context: ../printerbox_sortkaffe
       dockerfile: Dockerfile
@@ -62,7 +62,7 @@ services:
     command: /app/src/printerbox.py
     networks:
       - printerbox_network
-#    restart_policy: always
+    restart: unless-stopped
     environment:
       - PYTHONUNBUFFERED=1
     logging:
