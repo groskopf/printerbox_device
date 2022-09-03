@@ -2,7 +2,7 @@ version: "3"
 services:
 
   cupsd:
-    image: groskopf/printerbox_cupsd:v2
+    image: ghcr.io/groskopf/printerbox_cupsd:v2
     build:
       context: ../printerbox_cupsd
       dockerfile: Dockerfile
@@ -26,7 +26,7 @@ services:
         max-file: "3"
 
   client:
-    image: groskopf/printerbox_client:v2
+    image: ghcr.io/groskopf/printerbox_client:v2
     build:
       context: ../printerbox_client
       dockerfile: Dockerfile
@@ -49,7 +49,7 @@ services:
         max-file: "3"
 
   sortkaffe:
-    image: groskopf/printerbox_sortkaffe:v2
+    image: ghcr.io/groskopf/printerbox_sortkaffe:v2
     build:
       context: ../printerbox_sortkaffe
       dockerfile: Dockerfile
