@@ -12,3 +12,5 @@ docker volume create --name=printer_labels
 
 docker-compose up -d
 
+vim.tiny config/printerbox_config.json
+
