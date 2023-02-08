@@ -49,7 +49,7 @@ services:
         max-file: "3"
 
   sortkaffe:
-    image: ghcr.io/groskopf/printerbox_sortkaffe:v2
+    image: ghcr.io/groskopf/printerbox_sortkaffe:v2.2
  #   build:
  #     context: ../printerbox_sortkaffe
  #     dockerfile: Dockerfile
