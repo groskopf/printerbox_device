@@ -1,4 +1,6 @@
-# Update printer with settings from a Windows PC
+# Install a fresh printerbox
+
+## Update printer with settings from a Windows PC
 
 Use printerbox_instillinger.dat to setup printer
 
