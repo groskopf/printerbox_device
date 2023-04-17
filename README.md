@@ -100,7 +100,7 @@ Test !
 
 ```
 /usr/bin/ssh printerbox-2@34.141.14.43  
-systemctl enable ssh-reverse.service && systemctl start ssh-reverse.service && systemctl status ssh-reverse.service
+sudo systemctl enable ssh-reverse.service && sudo systemctl start ssh-reverse.service && sudo systemctl status ssh-reverse.service
 ```
 
 
