@@ -4,7 +4,7 @@
         "number": "p", 
         "printing_disabled": false,
         "access_token": "",
-        "printer_server" : "printerbox_device_cupsd_1",
+        "printer_server" : "printerbox_device-cupsd-1",
         "host_development" : false,
         "localhost_api" : false,
         "trace_websocket" : false,
