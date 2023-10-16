@@ -6,26 +6,9 @@ Use printerbox_instillinger.dat to setup printer
 
 ## Installation on the RPI
 
-Install Raspberion OS on the flash card
+Install Raspberion OS on the flash card (RaspberianOS Lite 64bit)
 
-##Setup network headlessly on the RPI
-
-Write an empty text file named "ssh" (no file extension) to the root of the directory of the card. 
-
-Timezone
-```
-sudo timedatectl set-timezone Europe/Copenhagen &&
-echo 'FallbackNTP=0.debian.pool.ntp.org 1.debian.pool.ntp.org 2.debian.pool.ntp.org 3.debian.pool.ntp.org' | sudo tee -a /etc/systemd/timesyncd.conf
-```
-Change password for user pi to pi
-```
-sudo passwd pi
-```
-
-Setup hostname, wait for network on boot
-```
-sudo raspi-config 
-```
+Choose hostname, password, ssh access, and timezone
 
 Update apt
 ```
@@ -38,23 +21,13 @@ sudo apt-get install cpufrequtils &&
 echo 'GOVERNOR="performance"' | sudo tee /etc/default/cpufrequtils
 ```
 
-Disable Wifi and Bluetooth
-```
-echo dtoverlay=pi3-disable-wifi | sudo tee -a /boot/config.txt &&
-echo dtoverlay=pi3-disable-bt | sudo tee -a /boot/config.txt
-```
-Disable HDMI
-```
-sudo sed -i 's/exit 0/# Diable HDMI\n\/opt\/vc\/bin\/tvservice -o\n\nexit 0/' /etc/rc.local
-```
-
 Setup docker  and logout
+Follow the instructions https://docs.docker.com/engine/install/debian/
 ```
-sudo apt install docker docker-compose &&
-sudo systemctl enable docker &&
+sudo systemctl enable docker &&    
 sudo usermod -a -G docker pi &&
 exit
-```
+`    ``
 
 blink1 support
 ```
@@ -67,17 +40,17 @@ git clone https://github.com/groskopf/printerbox_device.git
 cd printerbox_device
 ```
 
-Rename the printer ID
+Rename the printer ID and add access token
 ```
 vim.tiny config/printerbox_config.json 
 ```
 
 Power on printer and connect it
 ```
-docker-compose pull
+docker compose pull
 docker volume create --name=printer_labels
 ./install_printer.sh
-docker-compose up -d
+docker compose up -d
 ```
 
 
@@ -99,7 +72,7 @@ echo -e '[Unit]\nDescription=Reverse SSH connection\nAfter=network.target\n\n[Se
 Test !
 
 ```
-/usr/bin/ssh printerbox-2@34.141.14.43  
+/usr/bin/ssh printerbox-2@api.printerboks.dk  
 sudo systemctl enable ssh-reverse.service && sudo systemctl start ssh-reverse.service && sudo systemctl status ssh-reverse.service
 ```
 
