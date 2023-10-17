@@ -27,11 +27,17 @@ Follow the instructions https://docs.docker.com/engine/install/debian/
 sudo systemctl enable docker &&    
 sudo usermod -a -G docker pi &&
 exit
-`    ``
+```
 
 blink1 support
 ```
 sudo apt install libhidapi-hidraw0
+```
+
+Limit Journal diskspace usage
+```
+sudo cp /etc/systemd/journald.conf /etc/systemd/journald.conf.orig
+echo -e "# Total limit for all journals:\nSystemMaxUse=4G\n# Limit for individual files before rotation:\nSystemMaxFileSize=1G" | sudo tee -a /etc/systemd/journald.conf
 ```
 
 Clone project
