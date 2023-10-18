@@ -58,7 +58,11 @@ docker volume create --name=printer_labels
 ./install_printer.sh
 docker compose up -d
 ```
-
+Fixup for DNS problem
+```
+echo -e '[Unit]\nDescription=Restart docker if DNS stops working\nAfter=docker.service\nBindsTo=docker.service\n\n[Service]\nType=simple\nWorkingDirectory=/home/pi/printerbox_device/scripts\nExecStart=/bin/bash -c ./restart-docker-if-dns-fails.sh\nUser=root\nGroup=root\nRestart=always\nRestartSec=5s\n\n[Install]\nWantedBy=default.target\n' | sudo tee /etc/systemd/system/restart-docker-if-dns-fails.service
+sudo systemctl enable restart-docker-if-dns-fails.service && sudo systemctl start restart-docker-if-dns-fails.service
+```
 
 Reverse SSH setup
 
