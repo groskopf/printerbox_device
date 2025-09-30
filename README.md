@@ -63,6 +63,13 @@ Fixup for DNS problem
 echo -e '[Unit]\nDescription=Restart docker if DNS stops working\nAfter=docker.service\nBindsTo=docker.service\n\n[Service]\nType=simple\nWorkingDirectory=/home/pi/printerbox_device/scripts\nExecStart=/bin/bash -c ./restart-docker-if-dns-fails.sh\nUser=root\nGroup=root\nRestart=always\nRestartSec=5s\n\n[Install]\nWantedBy=default.target\n' | sudo tee /etc/systemd/system/restart-docker-if-dns-fails.service
 sudo systemctl enable restart-docker-if-dns-fails.service && sudo systemctl start restart-docker-if-dns-fails.service
 ```
+Setup route metrics for USB modem
+```
+sudo nmcli connection modify "Wired connection 1" ipv4.route-metric 100 ipv6.route-metric 100
+sudo nmcli connection modify "Wired connection 2" ipv4.route-metric 200 ipv6.route-metric 200
+sudo nmcli connection down "Wired connection 1" && sudo nmcli connection up "Wired connection 1"
+sudo nmcli connection down "Wired connection 2" && sudo nmcli connection up "Wired connection 2"
+```
 
 Reverse SSH setup
 
