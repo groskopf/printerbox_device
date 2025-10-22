@@ -58,6 +58,41 @@ docker volume create --name=printer_labels
 ./install_printer.sh
 docker compose up -d
 ```
+Delay docker untill we are online
+```
+# 1️⃣ Create systemd override directory for Docker
+sudo mkdir -p /etc/systemd/system/docker.service.d
+
+# 2️⃣ Create override file to depend on DNS precheck
+sudo tee /etc/systemd/system/docker.service.d/override.conf > /dev/null <<'EOF'
+[Unit]
+Requires=docker-dns-ready.service
+After=docker-dns-ready.service
+EOF
+
+# 3️⃣ Create the DNS precheck service
+sudo tee /etc/systemd/system/docker-dns-ready.service > /dev/null <<'EOF'
+[Unit]
+Description=Wait for working DNS before starting Docker
+Wants=network-online.target
+After=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/bin/sh -c "echo Waiting for DNS to resolve google.com ...; while ! getent hosts google.com >/dev/null 2>&1; do echo DNS not ready, retrying in 5s...; sleep 5; done; echo DNS is ready!"
+
+[Install]
+WantedBy=docker.service
+EOF
+
+# 4️⃣ Reload systemd to pick up new units
+sudo systemctl daemon-reload
+
+# 5️⃣ Enable the DNS precheck so it runs at boot
+sudo systemctl enable docker-dns-ready.service
+
+
+```
 Fixup for DNS problem
 ```
 echo -e '[Unit]\nDescription=Restart docker if DNS stops working\nAfter=docker.service\nBindsTo=docker.service\n\n[Service]\nType=simple\nWorkingDirectory=/home/pi/printerbox_device/scripts\nExecStart=/bin/bash -c ./restart-docker-if-dns-fails.sh\nUser=root\nGroup=root\nRestart=always\nRestartSec=5s\n\n[Install]\nWantedBy=default.target\n' | sudo tee /etc/systemd/system/restart-docker-if-dns-fails.service
