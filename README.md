@@ -60,17 +60,17 @@ docker compose up -d
 ```
 Delay docker untill we are online
 ```
-# 1️⃣ Create systemd override directory for Docker
+# Create systemd override directory for Docker
 sudo mkdir -p /etc/systemd/system/docker.service.d
 
-# 2️⃣ Create override file to depend on DNS precheck
+# Create override file to depend on DNS precheck
 sudo tee /etc/systemd/system/docker.service.d/override.conf > /dev/null <<'EOF'
 [Unit]
 Requires=docker-dns-ready.service
 After=docker-dns-ready.service
 EOF
 
-# 3️⃣ Create the DNS precheck service
+# Create the DNS precheck service
 sudo tee /etc/systemd/system/docker-dns-ready.service > /dev/null <<'EOF'
 [Unit]
 Description=Wait for working DNS before starting Docker
@@ -85,18 +85,78 @@ ExecStart=/bin/sh -c "echo Waiting for DNS to resolve google.com ...; while ! ge
 WantedBy=docker.service
 EOF
 
-# 4️⃣ Reload systemd to pick up new units
+# Reload systemd to pick up new units
 sudo systemctl daemon-reload
 
-# 5️⃣ Enable the DNS precheck so it runs at boot
+# Enable the DNS precheck so it runs at boot
 sudo systemctl enable docker-dns-ready.service
 
+```
+Remove old Fixup for DNS problem
+```
+sudo systemctl disable restart-docker-if-dns-fails.service
+sudo rm /etc/systemd/system/restart-docker-if-dns-fails.service
+```
+Restart docker ip primary interface changes(Fixup for DNS problem)
+```
+# Trigger an systemd service when network stare changes
+sudo mkdir -p /etc/NetworkManager/dispatcher.d
 
-```
-Fixup for DNS problem
-```
-echo -e '[Unit]\nDescription=Restart docker if DNS stops working\nAfter=docker.service\nBindsTo=docker.service\n\n[Service]\nType=simple\nWorkingDirectory=/home/pi/printerbox_device/scripts\nExecStart=/bin/bash -c ./restart-docker-if-dns-fails.sh\nUser=root\nGroup=root\nRestart=always\nRestartSec=5s\n\n[Install]\nWantedBy=default.target\n' | sudo tee /etc/systemd/system/restart-docker-if-dns-fails.service
-sudo systemctl enable restart-docker-if-dns-fails.service && sudo systemctl start restart-docker-if-dns-fails.service
+# Create override file to depend on DNS precheck
+sudo tee /etc/NetworkManager/dispatcher.d/99-check-if-dns-changes > /dev/null <<'EOF'
+#!/bin/sh
+IFACE="$1"
+STATE="$2"
+
+if [ "$STATE" = "up" ] || [ "$STATE" = "down" ]; then
+    # Give NM a few seconds to settle routing and DNS
+    sleep 3
+    systemctl start restart-docker-if-network-changed.service
+fi
+EOF
+sudo chmod +x /etc/NetworkManager/dispatcher.d/99-check-if-dns-changes
+
+# Service that trigger default network check
+sudo tee /etc/systemd/system/restart-docker-if-network-changed.service >/dev/null <<'EOF'
+[Unit]
+Description=Restart Docker if default interface changes (usb0 <-> eth0)
+After=network-online.target
+Wants=network-online.target
+
+After=docker.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/local/bin/restart-docker-if-network-changed.sh
+EOF
+
+# Script that restart docker if interface changed
+sudo tee /usr/local/bin/restart-docker-if-network-changed.sh >/dev/null <<'EOF'
+#!/bin/sh
+set -e
+
+STATE_FILE="/run/docker_last_iface"
+
+CURRENT_IFACE="$(ip route get 8.8.8.8 2>/dev/null | awk '/dev/ {print $5; exit}')"
+[ -z "$CURRENT_IFACE" ] && CURRENT_IFACE="none"
+
+LAST_IFACE=""
+[ -f "$STATE_FILE" ] && LAST_IFACE="$(cat "$STATE_FILE")"
+
+echo Current interface: "$CURRENT_IFACE", Last interface: "$STATE_FILE"
+
+# Only restart if the interface changed to eth0 or usb0
+if [ "$CURRENT_IFACE" != "$LAST_IFACE" ] && \
+   { [ "$CURRENT_IFACE" = "eth0" ] || [ "$CURRENT_IFACE" = "usb0" ]; }; then
+    echo "Interface changed from '$LAST_IFACE' to '$CURRENT_IFACE', restarting Docker..."
+    systemctl restart docker.service
+fi
+EOF
+sudo chmod +x /usr/local/bin/restart-docker-if-network-changed.sh
+
+# Reload systemd to pick up new units
+sudo systemctl daemon-reexec
+sudo systemctl daemon-reload
 ```
 Setup route metrics for USB modem
 ```
