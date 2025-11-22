@@ -179,7 +179,40 @@ Upload key to cloud.google.com
 
 Change port and user name ti printerbox-n
 ```
-echo -e '[Unit]\nDescription=Reverse SSH connection\nAfter=network.target\n\n[Service]\nType=simple\nExecStart=/usr/bin/ssh -vvv -g -N -T -o "ServerAliveInterval=10" -o "ExitOnForwardFailure=yes" -R 6000:localhost:22 printerbox-1@34.141.14.43\nUser=pi\nGroup=pi\nRestart=always\nRestartSec=5s\n\n[Install]\nWantedBy=default.target\n' | sudo tee /etc/systemd/system/ssh-reverse.service && sudo vim.tiny /etc/systemd/system/ssh-reverse.service  
+sudo apt install autossh
+sudo tee /etc/systemd/system/ssh-reverse.service >/dev/null <<'EOF'
+[Unit]
+Description=Reverse SSH connection
+
+Wants=network-online.target
+After=network-online.target
+
+Requires=docker-dns-ready.service
+After=docker-dns-ready.service
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/autossh -M 6108 -g -N -T \
+    -o "TCPKeepAlive=yes" \
+    -o "ExitOnForwardFailure=yes" \
+    -o "ServerAliveInterval=3" \
+    -o "ServerAliveCountMax=3" \
+    -o "ConnectTimeout=10" \
+    -o "BatchMode=yes" \
+    -R 6008:localhost:22 printerbox-8@api.printerboks.dk
+
+User=pi
+Group=pi
+
+Restart=always
+RestartSec=30s
+
+[Install]
+WantedBy=default.target
+EOF
+
+# Change the port number!
+sudo vim.tiny /etc/systemd/system/ssh-reverse.service  
 
 ```
 Test !
