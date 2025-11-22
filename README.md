@@ -75,6 +75,11 @@ sudo tee /etc/systemd/system/docker.service.d/override.conf > /dev/null <<'EOF'
 [Unit]
 Requires=docker-dns-ready.service
 After=docker-dns-ready.service
+
+[Service]
+Restart=on-failure
+StartLimitIntervalSec=600
+StartLimitBurst=3"
 EOF
 
 # Create the DNS precheck service
