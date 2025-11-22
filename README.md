@@ -36,8 +36,9 @@ sudo apt install libhidapi-hidraw0
 
 Limit Journal diskspace usage
 ```
+sudo sed -i 's/^#*SystemMaxUse=.*/SystemMaxUse=200M/' /etc/systemd/journald.conf
+sudo sed -i 's/^#*SystemMaxFileSize=.*/SystemMaxFileSize=50M/' /etc/systemd/journald.conf
 sudo cp /etc/systemd/journald.conf /etc/systemd/journald.conf.orig
-echo -e "# Total limit for all journals:\nSystemMaxUse=4G\n# Limit for individual files before rotation:\nSystemMaxFileSize=1G" | sudo tee -a /etc/systemd/journald.conf
 ```
 
 Clone project
