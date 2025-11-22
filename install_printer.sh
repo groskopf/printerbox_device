@@ -4,7 +4,7 @@ set -x
 read -p "WARNING: Connect and turn on printer before coninueing. Hit enter!"
 
 docker_image_name=ghcr.io/groskopf/printerbox_cupsd
-docker_image_version=v2
+docker_image_version=v2.1
 docker_image=$docker_image_name:$docker_image_version
 docker_container=printerbox_cupsd_install
 
