@@ -10,6 +10,12 @@ Install Raspberion OS on the flash card (RaspberianOS Lite 64bit)
 
 Choose hostname, password, ssh access, and timezone
 
+Fix vim
+```
+echo "alias vim='vim.tiny'" >> ~/.bashrc && source ~/.bashrc
+```
+
+
 Update apt
 ```
 sudo apt update && sudo apt upgrade
