@@ -7,4 +7,4 @@ if [ -z "$CR_PAT" ]; then
 fi
 echo $CR_PAT | docker login ghcr.io -u USERNAME --password-stdin
 
-docker-compose pull
+docker compose pull
