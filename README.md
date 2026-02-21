@@ -64,6 +64,15 @@ docker compose pull
 docker volume create --name=printer_labels
 ./install_printer.sh
 docker compose up -d
+
+```
+Setup firewall
+```
+sudo apt install ufw
+sudo ufw enable
+sudo ufw allow ssh
+
+
 ```
 Delay docker untill we are online
 ```
